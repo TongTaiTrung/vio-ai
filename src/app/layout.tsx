@@ -1,6 +1,9 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+
 import "./globals.css";
+import { ThemeProvider } from "@/components/theme-providers";
+import { CardDescription } from "@/components/ui/card";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -23,11 +26,23 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        {children}
+          <ThemeProvider
+            attribute="class"
+            defaultTheme="system"
+            enableSystem
+            disableTransitionOnChange
+          >
+            {children}
+            <div className="mt-3 bottom-0 w-full text-center items-center justify-center">
+              <CardDescription className="bg-accent p-3">
+                © 2025 - Trần Tiến Trung - Nghiên cứu và phát triển hệ thống chấm điểm động tác Vovinam
+              </CardDescription>
+            </div>
+          </ThemeProvider>
       </body>
     </html>
   );

@@ -1,103 +1,185 @@
-import Image from "next/image";
+'use client'
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Select, SelectTrigger, SelectValue, SelectContent, SelectLabel, SelectGroup, SelectItem } from '@/components/ui/select';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
 
-export default function Home() {
+import { Separator } from '@/components/ui/separator';
+import { AnalyzeResult } from '@/lib/definations';
+import { AlertCircle, AlertTriangle, Info, Moon, Save, Settings, Sun, X } from 'lucide-react';
+import { useTheme } from 'next-themes';
+import Image from 'next/image';
+import * as XLSX from "xlsx";
+import React, { ReactNode, useState } from 'react'
+import { cn, downloadBase64File } from '@/lib/utils';
+import { move, MoveKey } from '@/lib/moves';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
+
+function Home() {
+  const [file, setFile] = useState<File | null>();
+  const [loading, setLoading] = useState(false);
+  const [choosenMove, setChoosenMove] = useState<MoveKey | null>(null);
+  const [results, setResults] = useState<AnalyzeResult | null>(null);
+  const [preview, setPreview] = useState(false);
+  const [data, setData] = useState<unknown[][]>([]);
+  const {setTheme} = useTheme();
+
+  const action = async(formData: FormData) => {
+    if (!file) return;
+    setResults(null);
+    formData.append('file', file);
+    setLoading(true);
+    const res = await fetch('/api/submit', {
+      method: "POST",
+      body: formData,
+    })
+
+    const data = await res.json() as AnalyzeResult;
+    setResults(data);
+    handlePreviewExcel(data);
+    setLoading(false);
+  }
+  const handlePreviewExcel = (data: AnalyzeResult) => {
+    const cleaned = data.excel_base64.split(",")[1] || data.excel_base64;
+    const binary = atob(cleaned);
+    const array = new Uint8Array(binary.length);
+    for (let i = 0; i < binary.length; ++i) array[i] = binary.charCodeAt(i);
+
+    const workbook = XLSX.read(array, { type: "array" });
+    const sheetName = workbook.SheetNames[0];
+    const sheet = workbook.Sheets[sheetName];
+    const json = XLSX.utils.sheet_to_json(sheet, { header: 1 });
+    setData(json as unknown[][]);
+  }
   return (
-    <div className="font-sans grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="font-mono list-inside list-decimal text-sm/6 text-center sm:text-left">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] font-mono font-semibold px-1 py-0.5 rounded">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
-
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+    <div>
+      <form
+        onSubmit={async (e) => {
+          e.preventDefault();
+          const form = e.currentTarget as HTMLFormElement;
+          const fd = new FormData(form);
+          await action(fd);
+        }}
+        className='min-h-screen w-full flex p-0 lg:px-96 flex-row gap-3'
+      >
+        <div className='mt-3 flex flex-col gap-3'>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" size="icon">
+                <Sun className="h-[1.2rem] w-[1.2rem] scale-100 rotate-0 transition-all dark:scale-0 dark:-rotate-90" />
+                <Moon className="absolute h-[1.2rem] w-[1.2rem] scale-0 rotate-90 transition-all dark:scale-100 dark:rotate-0" />
+                <span className="sr-only">Toggle theme</span>
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem onClick={() => setTheme("light")}>
+                Sáng <Sun/>
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setTheme("dark")}>
+                Tối <Moon/>
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setTheme("system")}>
+                Hệ Thống <Settings/>
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button type='button' size="icon" variant={'secondary'}>
+                <Info/>
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>
+              <div className='flex flex-col'>
+                <CardDescription className='flex flex-row gap-1 items-center text-destructive italic font-bold'><AlertCircle size={12}/>Lưu Ý</CardDescription>
+                1. Tải lên video có góc quay trùng với góc quay của động tác
+                <span>2. Tải lên video có chất lượng hình ảnh tốt (1080p trở lên)</span>
+              </div>
+            </TooltipContent>
+          </Tooltip>
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+        <Card className='w-full min-h-screen'>
+          <CardHeader>
+            <CardTitle>Chấm điểm động tác Vovinam</CardTitle>
+            <CardDescription>Tải lên video và chọn động tác để đối chiếu</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className='flex flex-row gap-3'>
+              <div className='w-full flex items-center justify-center relative'>
+                <Input
+                  accept='video/*'
+                  required
+                  type='file'
+                  className='hover:cursor-pointer'
+                  onChange={(e) => setFile(e.target.files?.[0])}
+                />
+              </div>
+              <Select name='move' onValueChange={(v) => setChoosenMove(move.find(m => m.value === v) ?? null)} required>
+                <SelectTrigger>
+                  <SelectValue placeholder='Động tác'/>
+                  <SelectContent>
+                    <SelectGroup>
+                      <SelectLabel>Chọn động tác</SelectLabel>
+                      {move.map((value) => <SelectItem value={value.value} key={value.value}>{value.title}</SelectItem>)}
+                    </SelectGroup>
+                  </SelectContent>
+                </SelectTrigger>
+              </Select>
+            </div>
+            {choosenMove && <CardDescription className='text-destructive flex flex-row items-center gap-1 mt-3'>
+              Lưu ý chọn góc quay {choosenMove.angle} <AlertTriangle size={18}/>
+            </CardDescription>}
+          </CardContent>
+          <CardFooter>
+            <Button type="submit" disabled={loading}>{loading ? "Đang chấm điểm" : "Bắt đầu chấm điểm"}{loading && <Settings className='animate-spin'/>}</Button>
+          </CardFooter>
+          <Separator/>
+          {results && <CardContent className='grid gap-3'>
+            <CardDescription className='italic'>
+              {"Tổng điểm: " + results.score}
+            </CardDescription>
+            <Image onClick={() => setPreview(true)} src={results.graph_base64} alt="graph" width={1000} height={1000}
+              className='hover:cursor-pointer rounded-2xl'
+            />
+          {data.length > 0 && (
+          <table className="mt-4 border border-gray-400">
+            <tbody>
+              {data.map((row, i) => (
+                <tr key={i}>
+                  {row.map((cell, j) => (
+                    <td key={j} className={cn("border border-gray-400 p-2 text-center font-serif", (j==0||i==0)&&"font-bold",i==4&&j==1&&"border-none")}>
+                      {cell as ReactNode}
+                    </td>
+                  ))}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+          )}
+          <Button type='button' className='mt-2' onClick={() => downloadBase64File(results.excel_base64, "report.xlsx")}><Save/>Lưu báo cáo</Button>
+          </CardContent>}
+        </Card>
+      </form>
+      {preview && (
+        <div className='fixed inset-0 z-50 flex items-center justify-center bg-black/50 w-full min-h-screen'>
+          <Button className='absolute top-5 left-5' variant={'outline'} onClick={() => setPreview(false)}>
+            <X/> Quay lại
+          </Button>
+          <div className='relative'>
+            <Image src={results?.graph_base64 ?? ''} alt="preview" width={1150} height={1150}
+            className='rounded-2xl shadow-2xl'/>
+          </div>
+        </div>
+      )}
+
     </div>
-  );
+  )
 }
+
+export default Home
