@@ -18,6 +18,5 @@
 > Together, we research, innovate, and develop technology for Vovinam – the traditional martial art of Vietnam!
 <div align="center">
   <img src="public/fpt.svg" alt="Logo FPT" width="250" height="250"/>
-  <br></br>
   <img src="public/vovinam.png" alt="Logo FPT" width="250" height="250"/>
 </div>
