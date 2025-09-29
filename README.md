@@ -21,6 +21,5 @@
   <br></br>
   <img src="public/collab.png" alt="Logo FPT" width="100" height="100"/>
   <br></br>
-  <br></br>
   <img src="public/vovinam.png" alt="Logo FPT" width="250" height="250"/>
 </div>
