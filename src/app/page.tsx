@@ -154,7 +154,7 @@ function Home() {
               {data.map((row, i) => (
                 <tr key={i}>
                   {row.map((cell, j) => (
-                    <td key={j} className={cn("border border-gray-400 p-2 text-center font-serif", (j==0||i==0)&&"font-bold",i==4&&j==1&&"border-none")}>
+                    <td key={j} className={cn("border border-gray-400 p-2 text-center font-serif")}>
                       {cell as ReactNode}
                     </td>
                   ))}

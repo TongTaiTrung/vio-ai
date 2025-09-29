@@ -20,6 +20,10 @@
 # production
 /build
 
+#caches
+/uploads/*
+/python/__pycache__
+
 # misc
 .DS_Store
 *.pem
