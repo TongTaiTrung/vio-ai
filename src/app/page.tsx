@@ -66,7 +66,7 @@ function Home() {
           const fd = new FormData(form);
           await action(fd);
         }}
-        className='min-h-screen w-full flex p-0 lg:px-96 flex-row gap-3'
+        className='min-h-screen w-full flex p-0 sm:px-96 flex-row gap-3'
       >
         <div className='mt-3 flex flex-col gap-3'>
           <DropdownMenu>
@@ -104,6 +104,7 @@ function Home() {
             </TooltipContent>
           </Tooltip>
         </div>
+
         <Card className='w-full min-h-screen'>
           <CardHeader>
             <CardTitle>Chấm điểm động tác Vovinam</CardTitle>
