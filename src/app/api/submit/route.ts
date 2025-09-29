@@ -64,6 +64,7 @@ export async function POST(req: NextRequest) {
         }
       });
     });
+    await fs.promises.unlink(studentPath);
 
     return NextResponse.json(result);
   } catch (error) {
