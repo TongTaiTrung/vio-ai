@@ -5,10 +5,11 @@ from pose_detector import analyze
 if __name__ == "__main__":
     student_video = sys.argv[1]
     sample_video = sys.argv[2]
+    studentCode = sys.argv[3]
     print("Analyzing(...)", file=sys.stderr)
 
     try:
-        result = analyze(sample_video, student_video,0)
+        result = analyze(sample_video, student_video, studentCode,0)
 
         print(json.dumps(result))
     except Exception as e:

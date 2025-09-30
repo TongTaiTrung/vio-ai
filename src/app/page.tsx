@@ -20,6 +20,7 @@ import React, { ReactNode, useState } from 'react'
 import { cn, downloadBase64File } from '@/lib/utils';
 import { move, MoveKey } from '@/lib/moves';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
+import { Label } from '@/components/ui/label';
 
 function Home() {
   const [file, setFile] = useState<File | null>();
@@ -110,7 +111,11 @@ function Home() {
             <CardTitle>Chấm điểm động tác Vovinam</CardTitle>
             <CardDescription>Tải lên video và chọn động tác để đối chiếu</CardDescription>
           </CardHeader>
-          <CardContent>
+          <CardContent className='flex flex-col gap-3'>
+            <div className='flex flex-col gap-2'>
+              <Label>Mã số Học sinh</Label>
+              <Input name='studentCode' required placeholder='Mã số học sinh'/>
+            </div>
             <div className='flex flex-row gap-3'>
               <div className='w-full flex items-center justify-center relative'>
                 <Input

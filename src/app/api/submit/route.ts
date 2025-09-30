@@ -9,6 +9,7 @@ export async function POST(req: NextRequest) {
     const formData = await req.formData();
     const file = formData.get("file") as File;
     const move = formData.get("move") as string;
+    const studentCode = formData.get("studentCode") as string;
 
     if (!file || !move) {
       return NextResponse.json(
@@ -35,7 +36,7 @@ export async function POST(req: NextRequest) {
     console.log("Running:", [scriptPath, studentPath, samplePath]);
 
     const result = await new Promise<unknown>((resolve, reject) => {
-      const py = spawn("python3.10", [scriptPath, studentPath, samplePath]);
+      const py = spawn("python3.10", [scriptPath, studentPath, samplePath, studentCode]);
 
       let output = "";
       let errorOutput = "";

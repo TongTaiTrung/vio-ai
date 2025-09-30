@@ -19,7 +19,7 @@ joint_title = {
     "right_hip": "Hông phải",
 }
 
-def export_excel(joint_summary, score, filename="report"):
+def export_excel(joint_summary, score, studentCode):
     wb = Workbook()
     ws = wb.active
     ws.title = "So sánh góc"
@@ -43,15 +43,16 @@ def export_excel(joint_summary, score, filename="report"):
         else:
             comments.append(f"Hẹp hơn mẫu {abs(round(diff, 1))}˚")
     ws.append(comments)
-    ws["A5"] = "Điểm tổng"
-    ws["A5"].font = Font(name="Times New Roman", size=12, bold=True, italic=True)
-    ws["A5"].alignment = Alignment(horizontal="center", vertical="center")
-
+    
     ws.merge_cells("B5:I5")
-    ws["B5"] = f"{score:.1f}/100.0"
-    ws["B5"].alignment = Alignment(horizontal="center", vertical="center")
-    ws["B5"].font = Font(name="Times New Roman", size=12)
-
+    ws.merge_cells("B6:I6")
+    lastRows = [["A5","Điểm tổng"], ["A6","Mã số học sinh"],
+                ["B5", f"{score:.1f}/100.0"], ["B6", studentCode]]
+    for lastRow in lastRows:
+        ws[lastRow[0]] = lastRow[1]
+        ws[lastRow[0]].font = Font(name="Times New Roman", size=12, bold=True, italic=True)
+        ws[lastRow[0]].alignment = Alignment(horizontal="center", vertical="center")
+    
     thin_border = Border(left=Side(style="thin"), right=Side(style="thin"),
                          top=Side(style="thin"), bottom=Side(style="thin"))
 
@@ -111,9 +112,9 @@ def export_excel(joint_summary, score, filename="report"):
 
     if DEBUG:
         os.makedirs("reports", exist_ok=True)
-        with open(os.path.join("reports", f"{filename}_chart.png"), "wb") as f:
+        with open(os.path.join("reports", f"{studentCode}_chart.png"), "wb") as f:
             f.write(chart_bytes)
-        wb.save(os.path.join("reports", f"{filename}.xlsx"))
+        wb.save(os.path.join("reports", f"{studentCode}.xlsx"))
 
     return {
         "graph_base64": f"data:image/png;base64,{chart_base64}",

@@ -241,7 +241,7 @@ def score_with_dtw_fast(sample_part, student_part):
     except:
         return 0
 
-def analyze(sample_video, student_video, skip_frames=1, max_frames=300):
+def analyze(sample_video, student_video, studentCode, skip_frames=1, max_frames=300):
     """
     Main analysis function to compare sample and student videos.
     Args:
@@ -295,7 +295,8 @@ def analyze(sample_video, student_video, skip_frames=1, max_frames=300):
         total_score += 30.0
 
     total_score = min(total_score, 100.0)
-    urls = export_excel(joint_summary, total_score)
+    urls = export_excel(joint_summary, total_score, studentCode)
+    #show_videos_with_info(sample_frames, student_frames, sample_orient, student_orient)
 
     return {
         "score": f"{total_score:.2f}",
