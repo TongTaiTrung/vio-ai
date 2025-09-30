@@ -39,7 +39,7 @@ export default function RootLayout({
             {children}
             <div className="mt-3 bottom-0 w-full text-center items-center justify-center">
               <CardDescription className="bg-accent p-3">
-                © 2025 - <a href="/about" className="font-bold hover:underline">FSCHG KHKT</a> - Nghiên cứu và phát triển hệ thống chấm điểm động tác Vovinam
+                © 2025 - <a href="https://github.com/TongTaiTrung/vio-ai" className="font-bold hover:underline">FSCHG KHKT</a> - Nghiên cứu và phát triển hệ thống chấm điểm động tác Vovinam
               </CardDescription>
             </div>
           </ThemeProvider>
